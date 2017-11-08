@@ -14,6 +14,7 @@ class Tab extends React.Component {
     closeIcon: PropTypes.oneOfType([PropTypes.string, PropTypes.element]),
     position: PropTypes.oneOf(['left', 'right']),
     active: PropTypes.bool,
+    title: PropTypes.string,
   }
 
   render() {
@@ -81,9 +82,10 @@ class Sidebar extends MapComponent<LeafletElement, Props> {
       icon = tab.props.icon;
     const active = tab.props.id === this.props.selected ? ' active' : '';
     const disabled = tab.props.disabled ? ' disabled' : '';
+    const title = tab.props.title || tab.props.header;
     return (
       <li className={active + disabled} key={tab.props.id}>
-        <a href={'#' + tab.props.id} role="tab" onClick={e => tab.props.disabled || this.onOpen(e, tab.props.id)}>
+        <a href={'#' + tab.props.id} title={title} role="tab" onClick={e => tab.props.disabled || this.onOpen(e, tab.props.id)}>
           {icon}
         </a>
       </li>

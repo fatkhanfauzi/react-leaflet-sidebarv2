@@ -48,14 +48,23 @@ const TabType = PropTypes.shape({
 });
 
 class Sidebar extends MapComponent<LeafletElement, Props> {
+  constructor(props) {
+    super(props);
+    this.state = {
+      largeMenu: true,
+    }
+  }
+
   static propTypes = {
     id: PropTypes.string.isRequired,
     collapsed: PropTypes.bool,
+    largeMenu: PropTypes.bool,
     position: PropTypes.oneOf(['left', 'right']),
-    selected: PropTypes.string,
+    lected: PropTypes.string,
     closeIcon: PropTypes.oneOfType([PropTypes.string, PropTypes.element]).isRequired,
     onClose: PropTypes.func,
     onOpen: PropTypes.func,
+    onSwitchLargeMenu: PropTypes.func,
     children: PropTypes.oneOfType([
       PropTypes.arrayOf(TabType),
       TabType
@@ -74,6 +83,12 @@ class Sidebar extends MapComponent<LeafletElement, Props> {
     this.props.onOpen && this.props.onOpen(tabid);
   }
 
+  onSwitchLargeMenu(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    this.setState({largeMenu: !this.state.largeMenu});
+  }
+
   renderTab(tab) {
     var icon;
     if (typeof(tab.props.icon) === 'string')
@@ -87,6 +102,7 @@ class Sidebar extends MapComponent<LeafletElement, Props> {
       <li className={active + disabled} key={tab.props.id}>
         <a href={'#' + tab.props.id} title={title} role="tab" onClick={e => tab.props.disabled || this.onOpen(e, tab.props.id)}>
           {icon}
+          <span>{title}</span>
         </a>
       </li>
     );
@@ -104,12 +120,14 @@ class Sidebar extends MapComponent<LeafletElement, Props> {
   render() {
     const position = ' sidebar-' + (this.props.position || 'left');
     const collapsed = this.props.collapsed ? ' collapsed' : '';
+    const largeMenu = this.state.largeMenu ? ' large-menu' : ' small-menu';
+    const switcherIcon = this.state.largeMenu ? 'fa fa-lg fa-angle-double-left' : 'fa fa-lg fa-angle-double-right';
 
     const tabs = React.Children.toArray(this.props.children);
     const bottomtabs = tabs.filter(t => t.props.anchor === 'bottom');
     const toptabs = tabs.filter(t => t.props.anchor !== 'bottom');
     return (
-      <div id={this.props.id} className={"sidebar leaflet-touch" + position + collapsed}
+      <div id={this.props.id} className={"sidebar leaflet-touch" + position + collapsed + largeMenu}
         ref={el => this.rootElement = el}>
         <div className="sidebar-tabs">
           <ul role="tablist">   {/* Top-aligned */}
@@ -117,6 +135,11 @@ class Sidebar extends MapComponent<LeafletElement, Props> {
           </ul>
           <ul role="tablist">   {/* Bottom-aligned */}
             {bottomtabs.map(t => this.renderTab(t))}
+            <li className="switcher-menu">
+              <a href="#" onClick={e => this.onSwitchLargeMenu(e)}>
+                <i className={switcherIcon}></i>
+              </a>
+            </li>
           </ul>
         </div>
         <div className="sidebar-content">
